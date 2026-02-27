@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: booking-app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+      - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - booking-network
+
+  webserver:
+    image: nginx:alpine
+    container_name: booking-webserver
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
+    networks:
+      - booking-network
+
+  db:
+    image: mysql:8.0
+    container_name: booking-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: booking_db
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_PASSWORD: secret
+      MYSQL_USER: booking_user
+    ports:
+      - "3306:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+      - ./docker/mysql/my.cnf:/etc/mysql/my.cnf
+    networks:
+      - booking-network
+
+networks:
+  booking-network:
+    driver: bridge
+
+volumes:
+  dbdata:
+    driver: local
