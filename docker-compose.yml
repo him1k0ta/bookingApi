@@ -19,7 +19,7 @@ services:
     container_name: booking-webserver
     restart: unless-stopped
     ports:
-      - "80:80"
+      - "8080:80"
       - "443:443"
     volumes:
       - ./:/var/www
@@ -37,7 +37,7 @@ services:
       MYSQL_PASSWORD: secret
       MYSQL_USER: booking_user
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - dbdata:/var/lib/mysql
       - ./docker/mysql/my.cnf:/etc/mysql/my.cnf
