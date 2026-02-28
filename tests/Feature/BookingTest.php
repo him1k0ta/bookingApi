@@ -246,7 +246,6 @@ class BookingTest extends TestCase
         $response->assertStatus(422)
                  ->assertJsonValidationErrors(['room_id']);
 
-        // Тест с прошедшей датой
         $room = Room::factory()->create();
         $response = $this->actingAs($user, 'api')
                          ->postJson('/api/bookings', [
