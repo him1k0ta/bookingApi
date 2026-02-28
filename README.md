@@ -1,29 +1,3 @@
-```{=html}
-<p align="center">
-```
-`<a href="https://laravel.com" target="_blank">`{=html}
-`<img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo">`{=html}
-`</a>`{=html}
-```{=html}
-</p>
-```
-```{=html}
-<p align="center">
-```
-`<a href="https://github.com/him1k0ta/bookingApi/actions">`{=html}
-`<img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status">`{=html}
-`</a>`{=html}
-`<a href="https://packagist.org/packages/laravel/framework">`{=html}
-`<img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads">`{=html}
-`</a>`{=html}
-`<a href="https://packagist.org/packages/laravel/framework">`{=html}
-`<img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version">`{=html}
-`</a>`{=html} `<a href="https://opensource.org/licenses/MIT">`{=html}
-`<img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">`{=html}
-`</a>`{=html}
-```{=html}
-</p>
-```
 # Booking API
 
 REST API для системы бронирования отелей. Проект разработан на Laravel с
@@ -31,7 +5,7 @@ REST API для системы бронирования отелей. Проек
 
 ------------------------------------------------------------------------
 
-## 📌 О проекте
+## >;3 О проекте
 
 Booking API предоставляет функционал для бронирования номеров в отеле.
 
