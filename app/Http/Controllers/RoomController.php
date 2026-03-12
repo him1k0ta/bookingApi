@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Room;
+use App\Models\Booking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -24,13 +25,30 @@ class RoomController extends Controller
         if ($request->has('amenities')) {
             $amenities = explode(',', $request->amenities);
             foreach ($amenities as $amenity) {
-                $query->whereJsonContains('amenities', $amenity);
+                $query->whereJsonContains('amenities', trim($amenity));
             }
+        }
+
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->has('min_rating')) {
+            $minRating = $request->min_rating;
+            $query->whereHas('reviews', function($q) use ($minRating) {
+                $q->select('room_id')
+                  ->groupBy('room_id')
+                  ->havingRaw('avg(rating) >= ?', [$minRating]);
+            });
         }
 
         // Поиск свободных комнат на конкретное время
         if ($request->has('date') && $request->has('start_time') && $request->has('end_time')) {
-            $bookedRoomIds = \App\Models\Booking::where('date', $request->date)
+            $bookedRoomIds = Booking::where('date', $request->date)
                 ->where('status', 'active')
                 ->where(function ($q) use ($request) {
                     $q->whereBetween('start_time', [$request->start_time, $request->end_time])
@@ -45,11 +63,23 @@ class RoomController extends Controller
             $query->whereNotIn('id', $bookedRoomIds);
         }
 
-        $rooms = $query->with('reviews')->paginate(15);
+        $sortBy = $request->get('sort_by', 'name');
+        $sortOrder = $request->get('sort_order', 'asc');
+        
+        if ($sortBy === 'rating') {
+            $query->withAvg('reviews', 'rating')
+                  ->orderBy('reviews_avg_rating', $sortOrder);
+        } else {
+            $query->orderBy($sortBy, $sortOrder);
+        }
+
+        $perPage = $request->get('per_page', 15);
+        $rooms = $query->with('reviews')->paginate($perPage);
 
         // Добавляем средний рейтинг к каждой комнате
         $rooms->getCollection()->transform(function ($room) {
             $room->average_rating = $room->averageRating();
+            $room->total_reviews = $room->reviews()->count();
             return $room;
         });
 
@@ -83,6 +113,7 @@ class RoomController extends Controller
     {
         $room->load('reviews');
         $room->average_rating = $room->averageRating();
+        $room->total_reviews = $room->reviews()->count();
         return response()->json($room);
     }
 
@@ -130,6 +161,7 @@ class RoomController extends Controller
         $period = $request->period ?? 'day';
 
         $query = $room->bookings()
+            ->with('user:id,name')
             ->where('status', 'active')
             ->where('date', '>=', $date);
 
@@ -143,7 +175,7 @@ class RoomController extends Controller
         $bookings = $query->orderBy('date')->orderBy('start_time')->get();
 
         return response()->json([
-            'room' => $room,
+            'room' => $room->only(['id', 'name', 'capacity']),
             'date' => $date,
             'period' => $period,
             'bookings' => $bookings
